@@ -1,24 +1,25 @@
-use crate::settings::Settings;
 use chrono::{DateTime, Days, Local};
+use std::io::Error;
 use std::ops::Sub;
 use std::path::{Path, PathBuf};
 
-pub fn scan(settings: &Settings) -> Vec<Box<Path>> {
-    let initial_date = resolve_date(settings);
+pub fn scan(folder: &String, depth: u64) -> Result<Vec<Box<Path>>, Error> {
+    let initial_date = resolve_date(depth);
 
-    let path = Path::new(&settings.folder);
-    path.read_dir()
-        .unwrap()
-        .map(|dir| dir.unwrap())
+    let path = Path::new(&folder);
+    let files = path.read_dir()?
+        .flat_map(|dir| dir)
         .map(|dir| dir.path())
         .filter(|path| path.is_file())
         .filter(|p| initial_date > get_file_date(&p))
         .map(|p| p.into_boxed_path())
-        .collect()
+        .collect();
+
+    Ok(files)
 }
 
-fn resolve_date(settings: &Settings) -> DateTime<Local> {
-    Local::now().sub(Days::new(settings.depth))
+fn resolve_date(depth: u64) -> DateTime<Local> {
+    Local::now().sub(Days::new(depth))
 }
 
 fn get_file_date(path_buf: &PathBuf) -> DateTime<Local> {
