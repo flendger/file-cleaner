@@ -1,14 +1,15 @@
+use std::io::Error;
 use std::path::Path;
-use crate::settings::Settings;
 
-pub fn scan_dirs(settings: &Settings) -> Vec<Box<Path>> {
-    let path = Path::new(&settings.folder);
+pub fn scan_dirs(folder: &String) -> Result<Vec<Box<Path>>, Error> {
+    let path = Path::new(folder);
 
-    path.read_dir()
-        .unwrap()
+    let dirs = path.read_dir()?
         .flat_map(|dir| dir)
         .map(|entry| entry.path())
         .filter(|path| path.is_dir())
         .map(|path| path.into_boxed_path())
-        .collect()
+        .collect();
+
+    Ok(dirs)
 }
