@@ -17,15 +17,33 @@ pub fn clean_files(settings: Vec<&Settings>) {
             let current_dir = processing_queue.pop().unwrap();
             let dir_ref = current_dir.as_ref();
 
-            scan_files(dir_ref, depth)
-                .unwrap()
-                .iter()
-                .for_each(|file| remove_file(&file).unwrap());
+            if !dir_ref.exists() {
+                println!("Directory doesn't exist: {:?}", dir_ref);
+                continue;
+            }
 
-            let dirs = scan_dirs(dir_ref).unwrap();
+            scan_files(dir_ref, depth)
+                .unwrap_or_else(|_| {
+                    println!("Failed to scan files in directory: {:?}", dir_ref);
+                    vec![]
+                })
+                .iter()
+                .for_each(|file| remove_file(&file)
+                    .unwrap_or_else(|_| {
+                        println!("Failed to remove file: {:?}", file);
+                    }));
+
+            let dirs = scan_dirs(dir_ref)
+                .unwrap_or_else(|_| {
+                    println!("Failed to scan directories: {:?}", dir_ref);
+                    vec![]
+                });
             if dirs.is_empty() {
                 if initial_path != dir_ref {
-                    remove_dir(dir_ref).unwrap();
+                    remove_dir(dir_ref)
+                        .unwrap_or_else(|_| {
+                            println!("Failed to remove directory: {:?}", dir_ref);
+                        });
                 }
 
                 continue;
