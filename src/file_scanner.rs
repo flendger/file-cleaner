@@ -17,6 +17,17 @@ pub fn scan_files(folder: &Path, depth: u64) -> Result<Vec<Box<Path>>, Error> {
     Ok(files)
 }
 
+pub fn scan_all_files(folder: &Path) -> Result<Vec<Box<Path>>, Error> {
+    let files = folder.read_dir()?
+        .flat_map(|dir| dir)
+        .map(|dir| dir.path())
+        .filter(|path| path.is_file())
+        .map(|p| p.into_boxed_path())
+        .collect();
+
+    Ok(files)
+}
+
 fn resolve_date(depth: u64) -> DateTime<Local> {
     Local::now().sub(Days::new(depth))
 }

@@ -1,8 +1,9 @@
+use std::collections::HashSet;
 use std::path::Path;
 use crate::dir_remover::remove_dir;
 use crate::dir_scanner::scan_dirs;
 use crate::file_remover::remove_file;
-use crate::file_scanner::scan_files;
+use crate::file_scanner::{scan_all_files, scan_files};
 use crate::settings::Settings;
 
 pub fn clean_files(settings: Vec<&Settings>) {
@@ -13,10 +14,12 @@ pub fn clean_files(settings: Vec<&Settings>) {
         let mut processing_queue: Vec<Box<Path>> = Vec::new();
         processing_queue.push(Box::from(initial_path));
 
+        let mut already_processed: HashSet<Box<Path>> = HashSet::new();
+
         while !processing_queue.is_empty() {
             let current_dir = processing_queue.pop().unwrap();
-            let dir_ref = current_dir.as_ref();
 
+            let dir_ref = current_dir.as_ref();
             if !dir_ref.exists() {
                 println!("Directory doesn't exist: {:?}", dir_ref);
                 continue;
@@ -33,18 +36,34 @@ pub fn clean_files(settings: Vec<&Settings>) {
                         println!("Failed to remove file: {:?}", file);
                     }));
 
+            if !setting.hierarchy {
+                break;
+            }
+
             let dirs = scan_dirs(dir_ref)
                 .unwrap_or_else(|_| {
                     println!("Failed to scan directories: {:?}", dir_ref);
                     vec![]
-                });
+                })
+                .into_iter()
+                .filter(|c_dir| !already_processed.contains(c_dir.as_ref()))
+                .collect::<Vec<Box<Path>>>();
+
             if dirs.is_empty() {
-                if initial_path != dir_ref {
+                let all_files = scan_all_files(dir_ref)
+                    .unwrap_or_else(|_| {
+                        println!("Failed to scan directory: {:?}", dir_ref);
+                        vec![]
+                    });
+
+                if dir_ref != initial_path && all_files.is_empty() {
                     remove_dir(dir_ref)
                         .unwrap_or_else(|_| {
                             println!("Failed to remove directory: {:?}", dir_ref);
                         });
                 }
+
+                already_processed.insert(Box::from(dir_ref));
 
                 continue;
             }
