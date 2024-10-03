@@ -4,7 +4,7 @@ use clap::Parser;
 #[command(version, about, long_about = None, author)]
 pub struct Args {
     #[arg(short = 'c', long, default_value = "")]
-    config: String,
+    pub config: String,
 }
 
 pub fn get_args() -> Args {
