@@ -25,18 +25,20 @@ pub fn clean_files(setting: &Settings) {
             continue;
         }
 
-        scan_files(dir_ref, depth)
-            .unwrap_or_else(|_| {
-                error!("Failed to scan files in directory: {:?}", dir_ref);
-                vec![]
-            })
-            .iter()
-            .for_each(|file| {
-                match remove_file(&file) {
-                    Ok(_) => info!("File removed: {:?}", file),
-                    Err(_) => error!("Failed to remove file: {:?}", file)
-                };
-            });
+        if (dir_ref != initial_path) || (!setting.skip_root) {
+            scan_files(dir_ref, depth)
+                .unwrap_or_else(|_| {
+                    error!("Failed to scan files in directory: {:?}", dir_ref);
+                    vec![]
+                })
+                .iter()
+                .for_each(|file| {
+                    match remove_file(&file) {
+                        Ok(_) => info!("File removed: {:?}", file),
+                        Err(_) => error!("Failed to remove file: {:?}", file)
+                    };
+                });
+        }
 
         if !setting.hierarchy {
             break;

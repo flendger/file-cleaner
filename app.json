@@ -2,6 +2,7 @@
   {
     "folder": "./test_dir",
     "depth": 0,
-    "hierarchy": true
+    "hierarchy": true,
+    "skip_root": false
   }
 ]
