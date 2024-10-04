@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 use std::path::Path;
-use log::error;
+use log::{error, info};
 use crate::dir_remover::remove_dir;
 use crate::dir_scanner::scan_dirs;
 use crate::file_remover::remove_file;
@@ -32,10 +32,12 @@ pub fn clean_files(settings: Vec<&Settings>) {
                     vec![]
                 })
                 .iter()
-                .for_each(|file| remove_file(&file)
-                    .unwrap_or_else(|_| {
-                        error!("Failed to remove file: {:?}", file);
-                    }));
+                .for_each(|file| {
+                    match remove_file(&file) {
+                        Ok(_) => info!("File removed: {:?}", file),
+                        Err(_) => error!("Failed to remove file: {:?}", file)
+                    };
+                });
 
             if !setting.hierarchy {
                 break;
@@ -58,10 +60,10 @@ pub fn clean_files(settings: Vec<&Settings>) {
                     });
 
                 if dir_ref != initial_path && all_files.is_empty() {
-                    remove_dir(dir_ref)
-                        .unwrap_or_else(|_| {
-                            error!("Failed to remove directory: {:?}", dir_ref);
-                        });
+                    match remove_dir(dir_ref) {
+                        Ok(_) => info!("Directory removed: {:?}", dir_ref),
+                        Err(_) => error!("Failed to remove directory: {:?}", dir_ref)
+                    }
                 }
 
                 already_processed.insert(Box::from(dir_ref));
