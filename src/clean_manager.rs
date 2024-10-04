@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::path::Path;
+use log::error;
 use crate::dir_remover::remove_dir;
 use crate::dir_scanner::scan_dirs;
 use crate::file_remover::remove_file;
@@ -21,19 +22,19 @@ pub fn clean_files(settings: Vec<&Settings>) {
 
             let dir_ref = current_dir.as_ref();
             if !dir_ref.exists() {
-                println!("Directory doesn't exist: {:?}", dir_ref);
+                error!("Directory doesn't exist: {:?}", dir_ref);
                 continue;
             }
 
             scan_files(dir_ref, depth)
                 .unwrap_or_else(|_| {
-                    println!("Failed to scan files in directory: {:?}", dir_ref);
+                    error!("Failed to scan files in directory: {:?}", dir_ref);
                     vec![]
                 })
                 .iter()
                 .for_each(|file| remove_file(&file)
                     .unwrap_or_else(|_| {
-                        println!("Failed to remove file: {:?}", file);
+                        error!("Failed to remove file: {:?}", file);
                     }));
 
             if !setting.hierarchy {
@@ -42,7 +43,7 @@ pub fn clean_files(settings: Vec<&Settings>) {
 
             let dirs = scan_dirs(dir_ref)
                 .unwrap_or_else(|_| {
-                    println!("Failed to scan directories: {:?}", dir_ref);
+                    error!("Failed to scan directories: {:?}", dir_ref);
                     vec![]
                 })
                 .into_iter()
@@ -52,14 +53,14 @@ pub fn clean_files(settings: Vec<&Settings>) {
             if dirs.is_empty() {
                 let all_files = scan_all_files(dir_ref)
                     .unwrap_or_else(|_| {
-                        println!("Failed to scan directory: {:?}", dir_ref);
+                        error!("Failed to scan directory: {:?}", dir_ref);
                         vec![]
                     });
 
                 if dir_ref != initial_path && all_files.is_empty() {
                     remove_dir(dir_ref)
                         .unwrap_or_else(|_| {
-                            println!("Failed to remove directory: {:?}", dir_ref);
+                            error!("Failed to remove directory: {:?}", dir_ref);
                         });
                 }
 
