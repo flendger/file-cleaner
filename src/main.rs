@@ -41,6 +41,6 @@ fn main() {
         });
 
     for settings in settings_vec {
-        clean_files(vec![&settings]);
+        clean_files(&settings);
     }
 }
