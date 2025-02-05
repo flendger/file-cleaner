@@ -9,10 +9,10 @@ use crate::settings::Settings;
 
 pub fn clean_files(setting: &Settings) {
     let depth = setting.depth;
-    let initial_path = Path::new(&setting.folder);
+    let root_path = Path::new(&setting.folder);
 
     let mut processing_queue: Vec<Box<Path>> = Vec::new();
-    processing_queue.push(Box::from(initial_path));
+    processing_queue.push(Box::from(root_path));
 
     let mut already_processed: HashSet<Box<Path>> = HashSet::new();
 
@@ -25,7 +25,7 @@ pub fn clean_files(setting: &Settings) {
             continue;
         }
 
-        if (dir_ref != initial_path) || (!setting.skip_root) {
+        if (dir_ref != root_path) || (!setting.skip_root) {
             scan_files(dir_ref, depth)
                 .unwrap_or_else(|_| {
                     error!("Failed to scan files in directory: {:?}", dir_ref);
@@ -60,7 +60,7 @@ pub fn clean_files(setting: &Settings) {
                     vec![]
                 });
 
-            if dir_ref != initial_path && all_files.is_empty() {
+            if dir_ref != root_path && all_files.is_empty() {
                 match remove_dir(dir_ref) {
                     Ok(_) => info!("Directory removed: {:?}", dir_ref),
                     Err(_) => error!("Failed to remove directory: {:?}", dir_ref)
