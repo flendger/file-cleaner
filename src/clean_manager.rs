@@ -1,13 +1,16 @@
-use std::collections::HashSet;
-use std::path::Path;
-use log::{error, info};
 use crate::dir_remover::remove_dir;
 use crate::dir_scanner::scan_dirs;
-use crate::file_remover::remove_file;
 use crate::file_scanner::{scan_all_files, scan_files};
 use crate::settings::Settings;
+use log::{error, info};
+use std::collections::HashSet;
+use std::io;
+use std::path::Path;
 
-pub fn clean_files(setting: &Settings) {
+pub fn clean_files<F>(setting: &Settings, action: F)
+where
+    F: Fn(&Path) -> io::Result<()>,
+{
     let depth = setting.depth;
     let root_path = Path::new(&setting.folder);
 
@@ -33,9 +36,9 @@ pub fn clean_files(setting: &Settings) {
                 })
                 .iter()
                 .for_each(|file| {
-                    match remove_file(&file) {
+                    match action(&file) {
                         Ok(_) => info!("File removed: {:?}", file),
-                        Err(_) => error!("Failed to remove file: {:?}", file)
+                        Err(_) => error!("Failed to remove file: {:?}", file),
                     };
                 });
         }
@@ -54,16 +57,15 @@ pub fn clean_files(setting: &Settings) {
             .collect::<Vec<Box<Path>>>();
 
         if dirs.is_empty() {
-            let all_files = scan_all_files(dir_ref)
-                .unwrap_or_else(|_| {
-                    error!("Failed to scan directory: {:?}", dir_ref);
-                    vec![]
-                });
+            let all_files = scan_all_files(dir_ref).unwrap_or_else(|_| {
+                error!("Failed to scan directory: {:?}", dir_ref);
+                vec![]
+            });
 
             if dir_ref != root_path && all_files.is_empty() {
                 match remove_dir(dir_ref) {
                     Ok(_) => info!("Directory removed: {:?}", dir_ref),
-                    Err(_) => error!("Failed to remove directory: {:?}", dir_ref)
+                    Err(_) => error!("Failed to remove directory: {:?}", dir_ref),
                 }
             }
 
