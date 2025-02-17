@@ -1,15 +1,12 @@
 extern crate core;
 
-use log::{error, info};
-use crate::clean_manager::clean_files;
 use crate::config_resolver::resolve_config;
 use crate::logger_config::init_logger;
-use crate::remove_task::RemoveTask;
-use crate::run_params::{get_args};
+use crate::run_params::get_args;
 use crate::settings::Settings;
 use crate::settings_reader::read_settings;
-use crate::task_manager::{TaskManager};
 use crate::tsk_mng_config::task_config;
+use log::{error, info};
 
 mod settings;
 mod file_scanner;
