@@ -4,9 +4,12 @@ use log::{error, info};
 use crate::clean_manager::clean_files;
 use crate::config_resolver::resolve_config;
 use crate::logger_config::init_logger;
+use crate::remove_task::RemoveTask;
 use crate::run_params::{get_args};
 use crate::settings::Settings;
 use crate::settings_reader::read_settings;
+use crate::task_manager::{TaskManager};
+use crate::tsk_mng_config::task_config;
 
 mod settings;
 mod file_scanner;
@@ -18,6 +21,10 @@ mod settings_reader;
 mod run_params;
 mod config_resolver;
 mod logger_config;
+mod task_manager;
+mod tasks;
+mod remove_task;
+mod tsk_mng_config;
 
 fn main() {
     let args = get_args();
@@ -40,7 +47,9 @@ fn main() {
             vec![]
         });
 
+    let task_manager = task_config();
+
     for settings in settings_vec {
-        clean_files(&settings);
+        task_manager.manage(&settings);
     }
 }
