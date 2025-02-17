@@ -2,6 +2,7 @@ use crate::clean_manager::clean_files;
 use crate::settings::Settings;
 use crate::tasks::Task;
 
+#[derive(Default)]
 pub struct RemoveTask {}
 
 impl Task for RemoveTask {
