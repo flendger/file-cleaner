@@ -6,6 +6,6 @@ pub struct Settings {
     pub depth: u64,
     pub hierarchy: bool,
     pub skip_root: bool,
-    pub cmd: String, // r: remove, m: move, a: archive
+    pub cmd: char, // r: remove, m: move, a: archive
     pub dest_dir: String, //using for movement and archiving
 }
