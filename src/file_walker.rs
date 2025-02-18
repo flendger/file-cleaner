@@ -7,7 +7,7 @@ use std::collections::HashSet;
 use std::io;
 use std::path::Path;
 
-pub fn clean_files<F>(setting: &Settings, action: F)
+pub fn walk_files<F>(setting: &Settings, action: F)
 where
     F: Fn(&Path) -> io::Result<()>,
 {
