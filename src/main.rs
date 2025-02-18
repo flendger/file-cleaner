@@ -13,7 +13,7 @@ mod file_scanner;
 mod dir_scanner;
 mod file_remover;
 mod dir_remover;
-mod clean_manager;
+mod file_walker;
 mod settings_reader;
 mod run_params;
 mod config_resolver;
@@ -22,6 +22,8 @@ mod task_manager;
 mod tasks;
 mod remove_task;
 mod tsk_mng_config;
+mod move_task;
+mod file_mover;
 
 fn main() {
     let args = get_args();
