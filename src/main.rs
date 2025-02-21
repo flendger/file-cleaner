@@ -24,6 +24,7 @@ mod remove_task;
 mod tsk_mng_config;
 mod move_task;
 mod file_mover;
+mod dest_dir_resolver;
 
 fn main() {
     let args = get_args();
