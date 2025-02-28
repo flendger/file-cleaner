@@ -1,6 +1,8 @@
 use crate::settings::Settings;
+use crate::task_mng_err::TaskError;
 use crate::tasks::Task;
 use std::collections::HashMap;
+use std::error::Error;
 
 pub struct TaskManager {
     tasks_holder: HashMap<char, Box<dyn Task>>,
@@ -18,13 +20,19 @@ impl TaskManager {
         }
     }
 
-    pub fn manage(&self, settings: &Settings) {
+    pub fn manage(&self, settings: &Settings) -> Result<(), Box<dyn Error>> {
         //resolve task handle
         if let Some(cur_task) = self.tasks_holder.get(&settings.cmd) {
             //run handler
-            cur_task.run(settings);
+            return if let Err(error) = cur_task.run(settings) {
+                Err(Box::new(error))
+            } else {
+                Ok(())
+            }
         };
 
-        // TODO: 15.02.2025 ekiru --> handle if no tasks found
+        Err(Box::from(TaskError::new(
+            format!("Task not found: {}", settings.cmd).as_str(),
+        )))
     }
 }

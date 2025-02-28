@@ -25,6 +25,7 @@ mod tsk_mng_config;
 mod move_task;
 mod file_mover;
 mod dest_dir_resolver;
+mod task_mng_err;
 
 fn main() {
     let args = get_args();
@@ -50,6 +51,8 @@ fn main() {
     let task_manager = task_config();
 
     for settings in settings_vec {
-        task_manager.manage(&settings);
+        if let Err(error) = task_manager.manage(&settings) {
+            error!("{}", error);
+        };
     }
 }
