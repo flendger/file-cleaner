@@ -26,6 +26,7 @@ mod move_task;
 mod file_mover;
 mod dest_dir_resolver;
 mod task_mng_err;
+mod dest_f_name;
 
 fn main() {
     let args = get_args();

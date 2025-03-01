@@ -1,10 +1,11 @@
+use crate::dest_f_name::resolve_dest_f_name;
 use io::Error;
 use std::io::ErrorKind;
 use std::path::Path;
 use std::{fs, io};
 
 pub fn move_file(path: &Path, dest: &Path) -> io::Result<()> {
-    if let Some(f_name) = path.file_name() {
+    if let Some(f_name) = resolve_dest_f_name(path) {
         let dest_path = dest.join(f_name);
 
         fs::rename(path, dest_path)
